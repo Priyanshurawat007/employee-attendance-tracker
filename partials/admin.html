@@ -1,0 +1,69 @@
+<section id="adminPanel" aria-label="Admin Panel" ng-controller="AdminController">
+  <div class="admin-header glass">
+    <h2>👩‍💼 Admin Today's Dashboard</h2>
+    <div class="admin-summary-row">
+      <div class="admin-summary-card"><h4>Total Employees</h4><p>{{ totalEmployees }}</p></div>
+      <div class="admin-summary-card"><h4>Admins</h4><p>{{ totalAdmins }}</p></div>
+      <div class="admin-summary-card"><h4>Managers</h4><p>{{ totalManagers }}</p></div>
+    </div>
+  </div>
+
+  <!-- Admin Controls -->
+  <div class="admin-controls glass">
+    <input type="text" ng-model="searchText" placeholder="🔍 Search by name..." />
+    <select ng-model="roleFilter">
+      <option value="">Filter by Role</option>
+      <option value="employee">Employee</option>
+      <option value="manager">Manager</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button ng-click="openAddModal()">➕ Add Employee</button>
+    <button ng-click="clearAllRecords()" class="delete-employee-records-btn">🗑 Clear All Records</button>
+  </div>
+
+   <!-- Admin Calendar View -->
+  <div id="admincalendar" class="mb-4">
+    <div class="calendar-grid">
+      <div class="header" ng-repeat="day in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{day}}</div>
+      <div ng-repeat="n in [].constructor(adminCalendar.startOffset) track by $index"></div>
+      <div class="day" ng-repeat="d in adminCalendar.days" ng-class="{selected: d.full === adminCalendar.selected}" ng-click="selectAdminDate(d.full)">
+        {{d.day}}
+        <!-- if present -->
+        <span ng-if="d.present" class="present-badge">✔</span> 
+      </div>
+    </div>
+  </div>
+
+  <!-- handsontable logic -->
+  <div class="glass admin-table-container">
+    <hot-table settings="hotSettings"></hot-table>
+  </div>
+
+
+  <!-- Add Employee Model -->
+
+  <div class="modal" ng-show="showModal">
+    <form ng-submit="addEmployee()">
+      <h3>➕ Add New Employee</h3>
+      <label>Username:</label>
+      <input type="text" ng-model="newEmployee.username" required />
+      <label>Full Name:</label>
+      <input type="text" ng-model="newEmployee.name" required />
+      <label>Password:</label>
+      <input type="password" ng-model="newEmployee.password" required />
+      <label>Role:</label>
+      <select ng-model="newEmployee.role" required>
+        <option value="employee">Employee</option>
+        <option value="manager">Manager</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit">Add Employee</button>
+      <button type="button" ng-click="closeAddModal()">Cancel</button>
+    </form>
+  </div>
+  <div class="glass admin-table-container">
+  <h3>📋 Leave Requests</h3>
+  <hot-table settings="leaveTableSettings"></hot-table>
+</div>
+
+</section>

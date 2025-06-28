@@ -1,0 +1,141 @@
+<main id="dashboard" aria-label="Employee Dashboard" ng-controller="DashboardController">
+  <div class="dashboard-grid">
+    <section>
+      <div class="welcome-card glass">
+        <h2 id="userDashboardTitle">
+          Welcome, <span>{{ employee.name }}</span> 👋
+        </h2>
+      </div>
+
+      <div class="card attendance-log">
+        <h3>Today's Log</h3>
+        <pre>{{ todaysLog }}</pre>
+      </div>
+
+      <div class="card summary-section">
+        <h3>Summary</h3>
+        <canvas id="attendanceChart" style="width:100%; max-height:300px; margin-bottom: 20px;"></canvas>
+
+        <div class="calendar-section">
+          <input type="date" ng-model="summaryDate" ng-change="updateSummary(summaryDate)" />
+          <button ng-click="calendarVisible = !calendarVisible">
+            {{ calendarVisible ? 'Hide' : 'Show' }} Calendar
+          </button>
+
+          <!-- Calendar Grid -->
+          <div id="calendarView" class="calendar-grid" ng-show="calendarVisible">
+            <div class="header" ng-repeat="day in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{ day }}</div>
+            <div
+              ng-repeat="day in calendarDays"
+              ng-if="day"
+              class="day"
+              ng-class="{ 'selected': day.dateStr === summaryDate, 'present': day.isPresent }"
+              ng-click="selectCalendarDate(day.dateStr)"
+            >
+              {{ day.day }}
+              <span class="present-badge" ng-if="day.isPresent">✔</span>
+            </div>
+            <div ng-repeat="day in calendarDays" ng-if="!day" class="day empty"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-box glass-box">
+        <h3>🌟 Insights</h3>
+        <div class="premium-data-row">
+          <div class="premium-card">
+            <h4>Total Work Hours</h4>
+            <p>{{ totalWorkHours }}</p>
+          </div>
+          <div class="premium-card">
+            <h4>Average Daily Hours</h4>
+            <p>{{ avgWorkHours }}</p>
+          </div>
+          <div class="premium-card">
+            <h4>Attendance Days</h4>
+            <p>{{ attendanceDays }}</p>
+          </div>
+          <div class="premium-card">
+            <h4>Casual Leaves</h4>
+            <p>{{ casualLeaves }}</p>
+          </div>
+          <div class="premium-card">
+            <h4>Sick Leaves</h4>
+            <p>{{ sickLeaves }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="status-panel glass" aria-label="Status Control Panel">
+      <h3>⏱ Status Controls</h3>
+
+      <button
+        ng-click="checkIn()"
+        ng-disabled="buttonStates.checkIn"
+        ng-class="{ 'disabled-btn': buttonStates.checkIn }"
+      >
+        ✅ Check In
+      </button>
+
+      <button
+        ng-click="breakStart()"
+        ng-disabled="!buttonStates.checkIn || buttonStates.breakStart"
+        ng-class="{ 'disabled-btn': buttonStates.breakStart }"
+      >
+        ☕ Start Break
+      </button>
+
+      <button
+        ng-click="breakEnd()"
+        ng-disabled="!buttonStates.breakStart || buttonStates.breakEnd"
+        ng-class="{ 'disabled-btn': buttonStates.breakEnd }"
+      >
+        ▶️ End Break
+      </button>
+
+      <button
+        ng-click="checkOut()"
+        ng-disabled="!buttonStates.checkIn || buttonStates.checkOut"
+        ng-class="{ 'disabled-btn': buttonStates.checkOut }"
+      >
+        🚪 Check Out
+      </button>
+    </aside>
+
+    <div class="leave-section glass">
+      <h3>📌 Your Leave Applications</h3>
+
+      <div class="leave-entry" ng-repeat="leave in employee.leaveRequests">
+        <div class="leave-info">
+          <div><strong>Date:</strong> {{ leave.date | date:'fullDate' }}</div>
+          <div><strong>Type:</strong> {{ leave.type | uppercase }}</div>
+          <div><strong>Reason:</strong> {{ leave.reason }}</div>
+        </div>
+        <div class="leave-status" ng-class="leave.status.toLowerCase()">
+          {{ leave.status }}
+        </div>
+      </div>
+    </div>
+
+    <button ng-click="openLeaveModal()">📆 Apply for Leave</button>
+
+    <!-- Leave Modal -->
+    <div class="modal" ng-show="showLeaveModal">
+      <form ng-submit="submitLeave()">
+        <h3>Apply for Leave</h3>
+        <label>Leave Type:</label>
+        <select ng-model="leaveForm.type" required>
+          <option value="casual">Casual</option>
+          <option value="sick">Sick</option>
+        </select>
+        <label>Date:</label>
+        <input type="date" ng-model="leaveForm.date" required />
+        <label>Reason:</label>
+        <textarea ng-model="leaveForm.reason" required></textarea>
+        <button type="submit">Apply</button>
+        <button type="button" ng-click="closeLeaveModal()">Cancel</button>
+      </form>
+    </div>
+  </div>
+</main>
